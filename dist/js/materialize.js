@@ -11722,9 +11722,15 @@ $jscomp.polyfill = function (e, r, p, m) {
       key: "_handleOptionClick",
       value: function _handleOptionClick(e) {
         e.preventDefault();
-        var option = $(e.target).closest('li')[0];
-        var key = option.id;
-        if (!$(option).hasClass('disabled') && !$(option).hasClass('optgroup') && key.length) {
+        var optionEl = $(e.target).closest('li')[0];
+        this._selectOption(optionEl);
+        e.stopPropagation();
+      }
+    }, {
+      key: "_selectOption",
+      value: function _selectOption(optionEl) {
+        var key = optionEl.id;
+        if (!$(optionEl).hasClass('disabled') && !$(optionEl).hasClass('optgroup') && key.length) {
           var selected = true;
 
           if (this.isMultiple) {
@@ -11738,9 +11744,9 @@ $jscomp.polyfill = function (e, r, p, m) {
             selected = this._toggleEntryFromArray(key);
           } else {
             $(this.dropdownOptions).find('li').removeClass('selected');
-            $(option).toggleClass('selected', selected);
+            $(optionEl).toggleClass('selected', selected);
             this._keysSelected = {};
-            this._keysSelected[option.id] = true;
+            this._keysSelected[optionEl.id] = true;
           }
 
           // Set selected on original select option
@@ -11752,7 +11758,9 @@ $jscomp.polyfill = function (e, r, p, m) {
           }
         }
 
-        e.stopPropagation();
+        if (!this.isMultiple) {
+          this.dropdown.close();
+        }
       }
 
       /**
@@ -11870,9 +11878,9 @@ $jscomp.polyfill = function (e, r, p, m) {
             }
           };
 
-          if (this.isMultiple) {
-            dropdownOptions.closeOnClick = false;
-          }
+          // Prevent dropdown from closeing too early
+          dropdownOptions.closeOnClick = false;
+
           this.dropdown = M.Dropdown.init(this.input, dropdownOptions);
         }
 
@@ -12087,8 +12095,7 @@ $jscomp.polyfill = function (e, r, p, m) {
   if (M.jQueryLoaded) {
     M.initializeJqueryWrapper(FormSelect, 'formSelect', 'M_FormSelect');
   }
-})(cash);
-;(function ($, anim) {
+})(cash);;(function ($, anim) {
   'use strict';
 
   var _defaults = {};
